@@ -68,6 +68,25 @@ def test_add_to_watchlist_creates_entry(app, sample_user, sample_film):
         assert in_db is not None
 
 
+# ── Default visibility (Comment 4) ───────────────────────────────────────────
+
+def test_add_to_watchlist_defaults_to_private(app, sample_user, sample_film):
+    """
+    A newly added entry defaults to private (public=False). This locks in the
+    design decision documented in pr-response.md, Comment 4.
+    """
+    with app.app_context():
+        entry = add_to_watchlist(user_id=sample_user, film_id=sample_film)
+        assert entry.public is False
+
+
+def test_add_to_watchlist_respects_public_flag(app, sample_user, sample_film):
+    """Callers can opt into public visibility explicitly (visibility toggle)."""
+    with app.app_context():
+        entry = add_to_watchlist(user_id=sample_user, film_id=sample_film, public=True)
+        assert entry.public is True
+
+
 # ── Deduplication (Comment 2) ────────────────────────────────────────────────
 
 def test_add_to_watchlist_duplicate_raises(app, sample_user, sample_film):
